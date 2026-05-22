@@ -1,0 +1,697 @@
+import { useState, useEffect } from "react";
+
+// ── Icons (inline SVG) ──────────────────────────────────────────────
+const Icon = ({ d, size = 18, color = "currentColor" }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d={d} />
+  </svg>
+);
+const Icons = {
+  dashboard: "M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z M9 22V12h6v10",
+  ad: "M12 20h9 M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z",
+  leads: "M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2 M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z M23 21v-2a4 4 0 0 0-3-3.87 M16 3.13a4 4 0 0 1 0 7.75",
+  social: "M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z",
+  funnel: "M22 3H2l8 9.46V19l4 2v-8.54L22 3z",
+  crm: "M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z M12 12h.01",
+  analytics: "M18 20V10 M12 20V4 M6 20v-6",
+  ai: "M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 0 2h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1 0-2h1a7 7 0 0 1 7-7h1V5.73A2 2 0 0 1 10 4a2 2 0 0 1 2-2z",
+  settings: "M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z",
+  bell: "M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9 M13.73 21a2 2 0 0 1-3.46 0",
+  zap: "M13 2L3 14h9l-1 8 10-12h-9l1-8z",
+  send: "M22 2L11 13 M22 2l-7 20-4-9-9-4 20-7z",
+  copy: "M20 9h-9a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2z M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 0 2 2v1",
+  check: "M20 6L9 17l-5-5",
+  plus: "M12 5v14 M5 12h14",
+  whatsapp: "M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z M11.999 2C6.48 2 2 6.48 2 12c0 1.87.51 3.61 1.39 5.1L2 22l4.99-1.38A9.93 9.93 0 0 0 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2z",
+};
+
+// ── Color tokens ────────────────────────────────────────────────────
+const C = {
+  bg: "#070b14",
+  surface: "#0d1526",
+  surfaceHover: "#111d33",
+  border: "#1a2744",
+  accent: "#00c896",
+  accentDim: "#00c89622",
+  accentGlow: "#00c89640",
+  blue: "#3b82f6",
+  blueDim: "#3b82f620",
+  orange: "#f97316",
+  orangeDim: "#f9731620",
+  pink: "#ec4899",
+  pinkDim: "#ec489920",
+  text: "#e2eaf5",
+  textMuted: "#6b7fa3",
+  textDim: "#3a4d6b",
+};
+
+// ── Reusable components ─────────────────────────────────────────────
+const Badge = ({ color = C.accent, children }) => (
+  <span style={{
+    background: color + "22", color, border: `1px solid ${color}44`,
+    borderRadius: "4px", padding: "2px 8px", fontSize: "11px", fontWeight: 600,
+    letterSpacing: "0.05em", textTransform: "uppercase",
+  }}>{children}</span>
+);
+
+const Stat = ({ label, value, change, color = C.accent }) => (
+  <div style={{
+    background: C.surface, border: `1px solid ${C.border}`,
+    borderRadius: "12px", padding: "20px", flex: 1, minWidth: "120px",
+  }}>
+    <div style={{ color: C.textMuted, fontSize: "12px", marginBottom: "8px", letterSpacing: "0.05em" }}>{label}</div>
+    <div style={{ color, fontSize: "26px", fontWeight: 700, fontFamily: "'Syne', sans-serif" }}>{value}</div>
+    {change && <div style={{ color: C.accent, fontSize: "12px", marginTop: "4px" }}>{change}</div>}
+  </div>
+);
+
+const Btn = ({ onClick, children, variant = "primary", style: sx = {} }) => (
+  <button onClick={onClick} style={{
+    padding: variant === "ghost" ? "8px 16px" : "10px 20px",
+    borderRadius: "8px",
+    border: variant === "outline" ? `1px solid ${C.border}` : "none",
+    background: variant === "primary" ? `linear-gradient(135deg, ${C.accent}, #00a87a)`
+      : variant === "ghost" ? "transparent" : C.surface,
+    color: variant === "primary" ? "#000" : C.text,
+    fontWeight: variant === "primary" ? 700 : 500,
+    fontSize: "13px", cursor: "pointer", fontFamily: "inherit",
+    letterSpacing: "0.02em", transition: "all 0.15s",
+    ...sx,
+  }}>{children}</button>
+);
+
+// ── Mini bar chart ──────────────────────────────────────────────────
+const BarChart = ({ data, color = C.accent }) => {
+  const max = Math.max(...data.map(d => d.v));
+  return (
+    <div style={{ display: "flex", alignItems: "flex-end", gap: "6px", height: "80px" }}>
+      {data.map((d, i) => (
+        <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: "4px" }}>
+          <div style={{
+            width: "100%", background: color + "33", borderRadius: "4px 4px 0 0",
+            height: `${(d.v / max) * 68}px`,
+            borderTop: `2px solid ${color}`,
+            transition: "height 0.5s ease",
+          }} />
+          <span style={{ fontSize: "10px", color: C.textMuted }}>{d.l}</span>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+// ── Main App ────────────────────────────────────────────────────────
+export default function LeadFlowAI() {
+  const [tab, setTab] = useState("dashboard");
+  const [adForm, setAdForm] = useState({ product: "", audience: "", type: "Facebook Ad", goal: "Sales" });
+  const [adResult, setAdResult] = useState("");
+  const [adLoading, setAdLoading] = useState(false);
+  const [aiMsg, setAiMsg] = useState("");
+  const [aiChat, setAiChat] = useState([
+    { role: "assistant", text: "Hi! I'm your AI marketing assistant. Ask me anything about growing your business, writing ads, or improving your campaigns. 🚀" }
+  ]);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const NAV = [
+    { id: "dashboard", label: "Dashboard", icon: Icons.dashboard },
+    { id: "adcopy", label: "Ad Copy AI", icon: Icons.ad },
+    { id: "leads", label: "Leads", icon: Icons.leads },
+    { id: "social", label: "Social Media", icon: Icons.social },
+    { id: "crm", label: "CRM", icon: Icons.crm },
+    { id: "analytics", label: "Analytics", icon: Icons.analytics },
+    { id: "assistant", label: "AI Assistant", icon: Icons.ai },
+  ];
+
+  const LEADS = [
+    { name: "Amara Osei", phone: "+233 55 123 4567", source: "WhatsApp", status: "Hot", score: 92 },
+    { name: "Fatima Diallo", phone: "+234 80 987 6543", source: "Instagram", status: "Warm", score: 74 },
+    { name: "Kofi Mensah", phone: "+233 24 456 7890", source: "Facebook", status: "Hot", score: 88 },
+    { name: "Ngozi Adeyemi", phone: "+234 70 234 5678", source: "SMS", status: "Cold", score: 41 },
+    { name: "Emmanuel Asante", phone: "+233 50 678 9012", source: "Landing Page", status: "Warm", score: 66 },
+  ];
+
+  const generateAd = async () => {
+    if (!adForm.product) return;
+    setAdLoading(true);
+    setAdResult("");
+    try {
+      const res = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-20250514",
+          max_tokens: 1000,
+          system: "You are LeadFlow AI, an expert marketing copywriter for small businesses in Africa and emerging markets. Generate compelling, conversion-focused ad copy. Be direct, emotional, and persuasive. Output ONLY the ad copy — no preamble, no labels, no explanation.",
+          messages: [{
+            role: "user",
+            content: `Write a ${adForm.type} for:
+Product/Service: ${adForm.product}
+Target Audience: ${adForm.audience || "general audience"}
+Goal: ${adForm.goal}
+
+Make it punchy, urgent, and compelling. Include emojis where appropriate for social media. Add a strong call-to-action.`
+          }]
+        })
+      });
+      const data = await res.json();
+      setAdResult(data.content?.map(b => b.text || "").join("") || "");
+    } catch { setAdResult("Error generating copy. Please try again."); }
+    setAdLoading(false);
+  };
+
+  const sendAiMessage = async () => {
+    if (!aiMsg.trim()) return;
+    const userMsg = aiMsg;
+    setAiMsg("");
+    const newChat = [...aiChat, { role: "user", text: userMsg }];
+    setAiChat(newChat);
+    setAiLoading(true);
+    try {
+      const res = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-20250514",
+          max_tokens: 1000,
+          system: "You are LeadFlow AI's built-in marketing assistant for small businesses in Africa and emerging markets. You help with marketing strategy, ad copy, lead generation, WhatsApp marketing, social media growth, and sales. Be friendly, practical, and concise. Use bullet points and emojis to make responses easy to read.",
+          messages: newChat.map(m => ({ role: m.role === "assistant" ? "assistant" : "user", content: m.text }))
+        })
+      });
+      const data = await res.json();
+      const reply = data.content?.map(b => b.text || "").join("") || "Sorry, something went wrong.";
+      setAiChat([...newChat, { role: "assistant", text: reply }]);
+    } catch {
+      setAiChat([...newChat, { role: "assistant", text: "Something went wrong. Please try again." }]);
+    }
+    setAiLoading(false);
+  };
+
+  const copyAd = () => {
+    navigator.clipboard?.writeText(adResult);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const statusColor = s => s === "Hot" ? C.orange : s === "Warm" ? C.accent : C.textMuted;
+
+  return (
+    <div style={{
+      display: "flex", minHeight: "100vh", background: C.bg,
+      fontFamily: "'DM Sans', 'Segoe UI', sans-serif", color: C.text,
+      fontSize: "14px",
+    }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;600&display=swap');
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #1a2744; border-radius: 4px; }
+        textarea, input { outline: none; }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+      `}</style>
+
+      {/* Sidebar */}
+      <div style={{
+        width: "220px", flexShrink: 0, background: C.surface,
+        borderRight: `1px solid ${C.border}`, display: "flex", flexDirection: "column",
+        padding: "20px 12px",
+      }}>
+        {/* Logo */}
+        <div style={{ padding: "0 8px 24px", borderBottom: `1px solid ${C.border}` }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <div style={{
+              width: "32px", height: "32px", borderRadius: "8px",
+              background: `linear-gradient(135deg, ${C.accent}, #0095b3)`,
+              display: "flex", alignItems: "center", justifyContent: "center",
+            }}>
+              <Icon d={Icons.zap} size={16} color="#000" />
+            </div>
+            <div>
+              <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: "15px", color: C.text }}>LeadFlow</div>
+              <div style={{ fontSize: "10px", color: C.accent, letterSpacing: "0.1em" }}>AI PRO</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Nav */}
+        <nav style={{ flex: 1, paddingTop: "16px", display: "flex", flexDirection: "column", gap: "2px" }}>
+          {NAV.map(n => (
+            <button key={n.id} onClick={() => setTab(n.id)} style={{
+              display: "flex", alignItems: "center", gap: "10px",
+              padding: "10px 12px", borderRadius: "8px", border: "none", cursor: "pointer",
+              background: tab === n.id ? C.accentDim : "transparent",
+              color: tab === n.id ? C.accent : C.textMuted,
+              fontFamily: "inherit", fontSize: "13px", fontWeight: tab === n.id ? 600 : 400,
+              transition: "all 0.15s", textAlign: "left",
+              borderLeft: tab === n.id ? `2px solid ${C.accent}` : "2px solid transparent",
+            }}>
+              <Icon d={n.icon} size={16} />
+              {n.label}
+            </button>
+          ))}
+        </nav>
+
+        {/* Plan badge */}
+        <div style={{
+          background: `linear-gradient(135deg, ${C.accent}22, ${C.blue}22)`,
+          border: `1px solid ${C.accent}33`, borderRadius: "10px", padding: "12px",
+        }}>
+          <div style={{ fontSize: "11px", color: C.accent, fontWeight: 600, marginBottom: "4px" }}>PRO PLAN</div>
+          <div style={{ fontSize: "11px", color: C.textMuted }}>Unlimited AI generations</div>
+          <div style={{ marginTop: "8px", height: "4px", background: C.border, borderRadius: "2px" }}>
+            <div style={{ width: "68%", height: "100%", background: C.accent, borderRadius: "2px" }} />
+          </div>
+          <div style={{ fontSize: "10px", color: C.textMuted, marginTop: "4px" }}>68% usage this month</div>
+        </div>
+      </div>
+
+      {/* Main */}
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+        {/* Topbar */}
+        <div style={{
+          height: "60px", borderBottom: `1px solid ${C.border}`,
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+          padding: "0 28px", background: C.surface, flexShrink: 0,
+        }}>
+          <div>
+            <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, fontSize: "17px" }}>
+              {NAV.find(n => n.id === tab)?.label}
+            </div>
+            <div style={{ fontSize: "11px", color: C.textMuted }}>Friday, May 22, 2026</div>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <Btn variant="ghost" style={{ padding: "6px" }}><Icon d={Icons.bell} size={18} color={C.textMuted} /></Btn>
+            <div style={{
+              width: "34px", height: "34px", borderRadius: "50%",
+              background: `linear-gradient(135deg, ${C.accent}, ${C.blue})`,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontWeight: 700, fontSize: "13px", color: "#000",
+            }}>A</div>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div style={{ flex: 1, overflow: "auto", padding: "28px" }}>
+
+          {/* ── DASHBOARD ── */}
+          {tab === "dashboard" && (
+            <div style={{ animation: "fadeIn 0.3s ease" }}>
+              <div style={{ display: "flex", gap: "16px", marginBottom: "24px", flexWrap: "wrap" }}>
+                <Stat label="Total Leads" value="1,284" change="↑ 12% this week" color={C.accent} />
+                <Stat label="Conversions" value="347" change="↑ 8% this week" color={C.blue} />
+                <Stat label="Revenue" value="$8,420" change="↑ 23% this month" color={C.orange} />
+                <Stat label="Campaigns" value="14" change="3 active" color={C.pink} />
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px", marginBottom: "20px" }}>
+                <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: "12px", padding: "20px" }}>
+                  <div style={{ fontWeight: 600, marginBottom: "16px", fontSize: "13px", color: C.textMuted }}>LEADS THIS WEEK</div>
+                  <BarChart data={[
+                    { l: "Mon", v: 42 }, { l: "Tue", v: 67 }, { l: "Wed", v: 53 },
+                    { l: "Thu", v: 89 }, { l: "Fri", v: 71 }, { l: "Sat", v: 94 }, { l: "Sun", v: 58 }
+                  ]} color={C.accent} />
+                </div>
+                <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: "12px", padding: "20px" }}>
+                  <div style={{ fontWeight: 600, marginBottom: "16px", fontSize: "13px", color: C.textMuted }}>REVENUE THIS WEEK</div>
+                  <BarChart data={[
+                    { l: "Mon", v: 820 }, { l: "Tue", v: 1200 }, { l: "Wed", v: 960 },
+                    { l: "Thu", v: 1580 }, { l: "Fri", v: 1100 }, { l: "Sat", v: 1920 }, { l: "Sun", v: 840 }
+                  ]} color={C.blue} />
+                </div>
+              </div>
+
+              <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: "12px", padding: "20px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+                  <div style={{ fontWeight: 600, fontSize: "13px", color: C.textMuted }}>RECENT LEADS</div>
+                  <Btn variant="outline" style={{ fontSize: "11px", padding: "5px 12px" }} onClick={() => setTab("leads")}>View All</Btn>
+                </div>
+                {LEADS.slice(0, 3).map((l, i) => (
+                  <div key={i} style={{
+                    display: "flex", alignItems: "center", justifyContent: "space-between",
+                    padding: "12px 0", borderBottom: i < 2 ? `1px solid ${C.border}` : "none",
+                  }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                      <div style={{
+                        width: "32px", height: "32px", borderRadius: "50%",
+                        background: `linear-gradient(135deg, ${C.accent}44, ${C.blue}44)`,
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        fontWeight: 700, fontSize: "12px",
+                      }}>{l.name[0]}</div>
+                      <div>
+                        <div style={{ fontWeight: 500 }}>{l.name}</div>
+                        <div style={{ fontSize: "11px", color: C.textMuted }}>{l.source}</div>
+                      </div>
+                    </div>
+                    <Badge color={statusColor(l.status)}>{l.status}</Badge>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ── AD COPY AI ── */}
+          {tab === "adcopy" && (
+            <div style={{ animation: "fadeIn 0.3s ease", maxWidth: "800px" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
+                <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: "12px", padding: "24px" }}>
+                  <div style={{ fontWeight: 700, fontSize: "15px", marginBottom: "20px", fontFamily: "'Syne', sans-serif" }}>
+                    Generate Ad Copy
+                  </div>
+
+                  {[
+                    { label: "Product / Service *", key: "product", placeholder: "e.g. Data bundles, fashion, food delivery" },
+                    { label: "Target Audience", key: "audience", placeholder: "e.g. Young Nigerians aged 18-35" },
+                  ].map(f => (
+                    <div key={f.key} style={{ marginBottom: "16px" }}>
+                      <label style={{ display: "block", fontSize: "11px", color: C.textMuted, marginBottom: "6px", letterSpacing: "0.05em" }}>{f.label}</label>
+                      <input
+                        value={adForm[f.key]}
+                        onChange={e => setAdForm({ ...adForm, [f.key]: e.target.value })}
+                        placeholder={f.placeholder}
+                        style={{
+                          width: "100%", background: C.bg, border: `1px solid ${C.border}`,
+                          borderRadius: "8px", padding: "10px 14px", color: C.text,
+                          fontFamily: "inherit", fontSize: "13px",
+                        }}
+                      />
+                    </div>
+                  ))}
+
+                  <div style={{ marginBottom: "16px" }}>
+                    <label style={{ display: "block", fontSize: "11px", color: C.textMuted, marginBottom: "8px" }}>Ad Type</label>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+                      {["Facebook Ad", "WhatsApp Promo", "Instagram Caption", "TikTok Hook", "SMS Blast", "Sales Headline"].map(t => (
+                        <button key={t} onClick={() => setAdForm({ ...adForm, type: t })} style={{
+                          padding: "5px 10px", borderRadius: "6px", border: `1px solid ${adForm.type === t ? C.accent : C.border}`,
+                          background: adForm.type === t ? C.accentDim : "transparent",
+                          color: adForm.type === t ? C.accent : C.textMuted, cursor: "pointer",
+                          fontSize: "11px", fontFamily: "inherit",
+                        }}>{t}</button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div style={{ marginBottom: "20px" }}>
+                    <label style={{ display: "block", fontSize: "11px", color: C.textMuted, marginBottom: "8px" }}>Goal</label>
+                    <div style={{ display: "flex", gap: "6px" }}>
+                      {["Sales", "Leads", "Awareness", "Engagement"].map(g => (
+                        <button key={g} onClick={() => setAdForm({ ...adForm, goal: g })} style={{
+                          padding: "5px 10px", borderRadius: "6px", border: `1px solid ${adForm.goal === g ? C.blue : C.border}`,
+                          background: adForm.goal === g ? C.blueDim : "transparent",
+                          color: adForm.goal === g ? C.blue : C.textMuted, cursor: "pointer",
+                          fontSize: "11px", fontFamily: "inherit",
+                        }}>{g}</button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <Btn onClick={generateAd} style={{ width: "100%", opacity: adLoading ? 0.7 : 1 }}>
+                    {adLoading ? "✨ Generating..." : "✨ Generate Ad Copy"}
+                  </Btn>
+                </div>
+
+                <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: "12px", padding: "24px" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+                    <div style={{ fontWeight: 700, fontSize: "15px", fontFamily: "'Syne', sans-serif" }}>Generated Copy</div>
+                    {adResult && (
+                      <Btn variant="outline" onClick={copyAd} style={{ fontSize: "11px", padding: "5px 10px", display: "flex", alignItems: "center", gap: "4px" }}>
+                        {copied ? <><Icon d={Icons.check} size={12} color={C.accent} /> Copied!</> : <><Icon d={Icons.copy} size={12} /> Copy</>}
+                      </Btn>
+                    )}
+                  </div>
+
+                  {adLoading && (
+                    <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginTop: "16px" }}>
+                      {[100, 80, 90, 60].map((w, i) => (
+                        <div key={i} style={{
+                          height: "12px", borderRadius: "6px", background: C.border,
+                          width: `${w}%`, animation: "pulse 1.5s infinite", animationDelay: `${i * 0.1}s`
+                        }} />
+                      ))}
+                    </div>
+                  )}
+
+                  {adResult && !adLoading && (
+                    <div style={{
+                      background: C.bg, border: `1px solid ${C.border}`,
+                      borderLeft: `3px solid ${C.accent}`, borderRadius: "8px",
+                      padding: "16px", fontSize: "14px", lineHeight: 1.7, whiteSpace: "pre-wrap",
+                      color: C.text, animation: "fadeIn 0.3s ease",
+                    }}>{adResult}</div>
+                  )}
+
+                  {!adResult && !adLoading && (
+                    <div style={{
+                      height: "200px", display: "flex", flexDirection: "column",
+                      alignItems: "center", justifyContent: "center", color: C.textDim, gap: "8px",
+                    }}>
+                      <Icon d={Icons.zap} size={32} color={C.textDim} />
+                      <div style={{ fontSize: "13px" }}>Your ad copy will appear here</div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── LEADS ── */}
+          {tab === "leads" && (
+            <div style={{ animation: "fadeIn 0.3s ease" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+                <div style={{ display: "flex", gap: "12px" }}>
+                  {["All", "Hot", "Warm", "Cold"].map(s => (
+                    <Btn key={s} variant="outline" style={{ fontSize: "12px", padding: "6px 14px" }}>{s}</Btn>
+                  ))}
+                </div>
+                <Btn><Icon d={Icons.plus} size={14} /> Add Lead</Btn>
+              </div>
+
+              <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: "12px", overflow: "hidden" }}>
+                <div style={{
+                  display: "grid", gridTemplateColumns: "2fr 2fr 1fr 1fr 1fr",
+                  padding: "12px 20px", borderBottom: `1px solid ${C.border}`,
+                  fontSize: "11px", color: C.textMuted, letterSpacing: "0.05em", textTransform: "uppercase",
+                }}>
+                  <span>Name</span><span>Contact</span><span>Source</span><span>Status</span><span>Score</span>
+                </div>
+                {LEADS.map((l, i) => (
+                  <div key={i} style={{
+                    display: "grid", gridTemplateColumns: "2fr 2fr 1fr 1fr 1fr",
+                    padding: "14px 20px", borderBottom: i < LEADS.length - 1 ? `1px solid ${C.border}` : "none",
+                    alignItems: "center", transition: "background 0.15s",
+                  }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                      <div style={{
+                        width: "30px", height: "30px", borderRadius: "50%",
+                        background: `linear-gradient(135deg, ${C.accent}55, ${C.blue}55)`,
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        fontWeight: 700, fontSize: "12px",
+                      }}>{l.name[0]}</div>
+                      <span style={{ fontWeight: 500 }}>{l.name}</span>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: "6px", color: C.textMuted, fontSize: "13px" }}>
+                      <Icon d={Icons.whatsapp} size={13} color={C.accent} />
+                      {l.phone}
+                    </div>
+                    <Badge color={C.blue}>{l.source}</Badge>
+                    <Badge color={statusColor(l.status)}>{l.status}</Badge>
+                    <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                      <div style={{ flex: 1, height: "4px", background: C.border, borderRadius: "2px" }}>
+                        <div style={{
+                          width: `${l.score}%`, height: "100%", borderRadius: "2px",
+                          background: l.score > 80 ? C.orange : l.score > 60 ? C.accent : C.textMuted,
+                        }} />
+                      </div>
+                      <span style={{ fontSize: "12px", color: C.textMuted, width: "28px" }}>{l.score}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ── SOCIAL MEDIA ── */}
+          {tab === "social" && (
+            <div style={{ animation: "fadeIn 0.3s ease" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "16px", marginBottom: "24px" }}>
+                {[
+                  { platform: "Instagram", followers: "12.4K", growth: "+342 this week", color: C.pink },
+                  { platform: "Facebook", followers: "8.9K", growth: "+189 this week", color: C.blue },
+                  { platform: "TikTok", followers: "31.2K", growth: "+2.1K this week", color: C.orange },
+                ].map(p => (
+                  <div key={p.platform} style={{
+                    background: C.surface, border: `1px solid ${C.border}`,
+                    borderTop: `3px solid ${p.color}`, borderRadius: "12px", padding: "20px",
+                  }}>
+                    <div style={{ fontSize: "12px", color: C.textMuted, marginBottom: "8px" }}>{p.platform}</div>
+                    <div style={{ fontSize: "24px", fontWeight: 700, fontFamily: "'Syne', sans-serif", color: p.color }}>{p.followers}</div>
+                    <div style={{ fontSize: "11px", color: C.accent, marginTop: "4px" }}>{p.growth}</div>
+                  </div>
+                ))}
+              </div>
+
+              <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: "12px", padding: "24px" }}>
+                <div style={{ fontWeight: 700, fontFamily: "'Syne', sans-serif", marginBottom: "16px" }}>Content Calendar</div>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: "8px" }}>
+                  {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((d, i) => (
+                    <div key={d} style={{ textAlign: "center" }}>
+                      <div style={{ fontSize: "11px", color: C.textMuted, marginBottom: "6px" }}>{d}</div>
+                      <div style={{
+                        background: [0, 2, 4].includes(i) ? C.accentDim : C.bg,
+                        border: `1px solid ${[0, 2, 4].includes(i) ? C.accent : C.border}`,
+                        borderRadius: "8px", padding: "8px 4px", minHeight: "52px",
+                        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "2px",
+                      }}>
+                        {[0, 2, 4].includes(i) ? <>
+                          <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: C.accent }} />
+                          <div style={{ fontSize: "9px", color: C.accent }}>Scheduled</div>
+                        </> : <div style={{ fontSize: "10px", color: C.textDim }}>+</div>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── CRM ── */}
+          {tab === "crm" && (
+            <div style={{ animation: "fadeIn 0.3s ease" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "16px" }}>
+                {[
+                  { stage: "New Leads", count: 24, color: C.blue },
+                  { stage: "Contacted", count: 18, color: C.accent },
+                  { stage: "Negotiating", count: 9, color: C.orange },
+                  { stage: "Closed", count: 6, color: C.pink },
+                ].map(col => (
+                  <div key={col.stage} style={{
+                    background: C.surface, border: `1px solid ${C.border}`,
+                    borderTop: `3px solid ${col.color}`, borderRadius: "12px", padding: "16px", minHeight: "300px",
+                  }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
+                      <div style={{ fontSize: "12px", fontWeight: 600, color: col.color }}>{col.stage}</div>
+                      <Badge color={col.color}>{col.count}</Badge>
+                    </div>
+                    {LEADS.slice(0, Math.min(col.count > 10 ? 3 : 2, LEADS.length)).map((l, i) => (
+                      <div key={i} style={{
+                        background: C.bg, border: `1px solid ${C.border}`,
+                        borderRadius: "8px", padding: "10px", marginBottom: "8px",
+                      }}>
+                        <div style={{ fontWeight: 500, fontSize: "13px" }}>{l.name}</div>
+                        <div style={{ fontSize: "11px", color: C.textMuted, marginTop: "2px" }}>{l.source}</div>
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ── ANALYTICS ── */}
+          {tab === "analytics" && (
+            <div style={{ animation: "fadeIn 0.3s ease" }}>
+              <div style={{ display: "flex", gap: "16px", marginBottom: "24px", flexWrap: "wrap" }}>
+                <Stat label="Click Rate" value="4.7%" change="↑ 0.8% vs last month" color={C.accent} />
+                <Stat label="Conversion" value="12.3%" change="↑ 2.1% vs last month" color={C.blue} />
+                <Stat label="Cost/Lead" value="$1.20" change="↓ $0.30 vs last month" color={C.orange} />
+                <Stat label="ROAS" value="6.8x" change="↑ 1.2x vs last month" color={C.pink} />
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "20px" }}>
+                <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: "12px", padding: "24px" }}>
+                  <div style={{ fontWeight: 600, fontSize: "13px", color: C.textMuted, marginBottom: "16px" }}>MONTHLY REVENUE</div>
+                  <BarChart data={[
+                    { l: "Jan", v: 3200 }, { l: "Feb", v: 4100 }, { l: "Mar", v: 3800 },
+                    { l: "Apr", v: 5200 }, { l: "May", v: 8420 }, { l: "Jun", v: 0 }
+                  ]} color={C.blue} />
+                </div>
+                <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: "12px", padding: "24px" }}>
+                  <div style={{ fontWeight: 600, fontSize: "13px", color: C.textMuted, marginBottom: "16px" }}>TRAFFIC SOURCES</div>
+                  {[
+                    { source: "WhatsApp", pct: 42, color: C.accent },
+                    { source: "Instagram", pct: 28, color: C.pink },
+                    { source: "Facebook", pct: 18, color: C.blue },
+                    { source: "Direct", pct: 12, color: C.orange },
+                  ].map(s => (
+                    <div key={s.source} style={{ marginBottom: "12px" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", marginBottom: "4px" }}>
+                        <span>{s.source}</span><span style={{ color: s.color }}>{s.pct}%</span>
+                      </div>
+                      <div style={{ height: "4px", background: C.border, borderRadius: "2px" }}>
+                        <div style={{ width: `${s.pct}%`, height: "100%", background: s.color, borderRadius: "2px" }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── AI ASSISTANT ── */}
+          {tab === "assistant" && (
+            <div style={{ animation: "fadeIn 0.3s ease", maxWidth: "700px", height: "calc(100vh - 140px)", display: "flex", flexDirection: "column" }}>
+              <div style={{
+                flex: 1, background: C.surface, border: `1px solid ${C.border}`,
+                borderRadius: "12px", padding: "20px", overflow: "auto",
+                display: "flex", flexDirection: "column", gap: "14px", marginBottom: "16px",
+              }}>
+                {aiChat.map((m, i) => (
+                  <div key={i} style={{
+                    display: "flex", justifyContent: m.role === "user" ? "flex-end" : "flex-start",
+                    animation: "fadeIn 0.2s ease",
+                  }}>
+                    {m.role === "assistant" && (
+                      <div style={{
+                        width: "28px", height: "28px", borderRadius: "50%", flexShrink: 0,
+                        background: `linear-gradient(135deg, ${C.accent}, #0095b3)`,
+                        display: "flex", alignItems: "center", justifyContent: "center", marginRight: "8px",
+                      }}>
+                        <Icon d={Icons.zap} size={13} color="#000" />
+                      </div>
+                    )}
+                    <div style={{
+                      maxWidth: "80%", padding: "12px 16px", borderRadius: m.role === "user" ? "16px 16px 4px 16px" : "16px 16px 16px 4px",
+                      background: m.role === "user" ? `linear-gradient(135deg, ${C.accent}, #00a87a)` : C.bg,
+                      border: m.role === "user" ? "none" : `1px solid ${C.border}`,
+                      color: m.role === "user" ? "#000" : C.text,
+                      fontSize: "13px", lineHeight: 1.65, whiteSpace: "pre-wrap",
+                    }}>{m.text}</div>
+                  </div>
+                ))}
+                {aiLoading && (
+                  <div style={{ display: "flex", gap: "4px", padding: "8px 16px" }}>
+                    {[0, 1, 2].map(i => (
+                      <div key={i} style={{
+                        width: "6px", height: "6px", borderRadius: "50%", background: C.accent,
+                        animation: "pulse 1s infinite", animationDelay: `${i * 0.2}s`,
+                      }} />
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div style={{ display: "flex", gap: "10px" }}>
+                <input
+                  value={aiMsg}
+                  onChange={e => setAiMsg(e.target.value)}
+                  onKeyDown={e => e.key === "Enter" && !e.shiftKey && sendAiMessage()}
+                  placeholder="Ask me about marketing, ads, leads, growth..."
+                  style={{
+                    flex: 1, background: C.surface, border: `1px solid ${C.border}`,
+                    borderRadius: "10px", padding: "12px 16px", color: C.text,
+                    fontFamily: "inherit", fontSize: "13px",
+                  }}
+                />
+                <Btn onClick={sendAiMessage} style={{ padding: "12px 18px" }}>
+                  <Icon d={Icons.send} size={16} color="#000" />
+                </Btn>
+              </div>
+            </div>
+          )}
+
+        </div>
+      </div>
+    </div>
+  );
+}
